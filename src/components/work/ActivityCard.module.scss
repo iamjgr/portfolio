@@ -1,0 +1,235 @@
+@use "../breakpoints.scss" as breakpoints;
+
+.card {
+  animation: activityIn 460ms ease both;
+  animation-delay: var(--stagger, 0ms);
+}
+
+.surface {
+  transition: transform 280ms ease, border-color 220ms ease;
+  will-change: transform;
+
+  &:hover {
+    transform: translateY(-3px);
+
+    .image {
+      transform: scale(1.03);
+    }
+  }
+}
+
+.mediaWrap {
+  position: relative;
+  overflow: hidden;
+  min-height: 220px;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 280ms ease;
+}
+
+.slideActive {
+  opacity: 1;
+}
+
+.landscape {
+  .mediaWrap {
+    aspect-ratio: 16 / 9;
+    min-height: 0;
+  }
+}
+
+.side {
+  display: grid;
+  grid-template-columns: minmax(220px, 38%) 1fr;
+
+  .mediaWrap {
+    aspect-ratio: 4 / 5;
+    min-height: 100%;
+  }
+}
+
+.content {
+  justify-content: center;
+}
+
+.image {
+  object-fit: cover;
+  transition: transform 420ms ease, opacity 260ms ease;
+  opacity: 0;
+}
+
+.loaded {
+  opacity: 1;
+}
+
+.skeleton {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  animation: shimmer 1.2s ease-in-out infinite;
+  background: linear-gradient(
+    90deg,
+    var(--neutral-alpha-weak),
+    var(--neutral-alpha-medium),
+    var(--neutral-alpha-weak)
+  );
+  background-size: 200% 100%;
+}
+
+.skeletonHidden {
+  opacity: 0;
+  transition: opacity 260ms ease;
+}
+
+.controls {
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  padding-inline: var(--static-space-12);
+  pointer-events: none;
+}
+
+.controlButton {
+  pointer-events: auto;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--neutral-alpha-medium);
+  border-radius: 999px;
+  background: var(--page-background);
+  color: var(--neutral-on-background-strong);
+  line-height: 1;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: transform 200ms ease, border-color 200ms ease;
+
+  &:hover {
+    transform: scale(1.04);
+    border-color: var(--neutral-border-strong);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--neutral-border-strong);
+    outline-offset: 2px;
+  }
+}
+
+.dots {
+  position: absolute;
+  left: 50%;
+  bottom: var(--static-space-12);
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--static-space-8);
+  padding: var(--static-space-4) var(--static-space-8);
+  border-radius: 999px;
+  background: var(--page-background);
+  border: 1px solid var(--neutral-alpha-weak);
+}
+
+.dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--neutral-alpha-medium);
+  cursor: pointer;
+  transition: transform 180ms ease, background-color 180ms ease;
+
+  &:hover {
+    transform: scale(1.15);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--neutral-border-strong);
+    outline-offset: 1px;
+  }
+}
+
+.dotActive {
+  background: var(--neutral-on-background-strong);
+}
+
+.titleLink {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.24em;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--neutral-border-strong);
+    outline-offset: 2px;
+    border-radius: 0.125rem;
+  }
+}
+
+.readMoreLink {
+  width: fit-content;
+  color: var(--brand-on-background-strong);
+  text-decoration: none;
+  font-size: var(--font-size-body-s);
+  font-weight: var(--font-weight-label-default);
+
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.24em;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--neutral-border-strong);
+    outline-offset: 2px;
+    border-radius: 0.125rem;
+  }
+}
+
+@media (max-width: breakpoints.$m) {
+  .side {
+    grid-template-columns: minmax(180px, 40%) 1fr;
+  }
+}
+
+@media (max-width: breakpoints.$s) {
+  .side {
+    grid-template-columns: 1fr;
+
+    .mediaWrap {
+      aspect-ratio: 16 / 10;
+    }
+  }
+
+  .controlButton {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+}
+
+@keyframes activityIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}

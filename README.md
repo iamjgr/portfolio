@@ -89,3 +89,18 @@ See `LICENSE.txt` for more information.
 ## Deploy with Vercel
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fonce-ui-system%2Fmagic-portfolio&project-name=portfolio&repository-name=portfolio&redirect-url=https%3A%2F%2Fgithub.com%2Fonce-ui-system%2Fmagic-portfolio&demo-title=Magic%20Portfolio&demo-description=Showcase%20your%20designers%20or%20developer%20portfolio&demo-url=https%3A%2F%2Fdemo.magic-portfolio.com&demo-image=%2F%2Fraw.githubusercontent.com%2Fonce-ui-system%2Fmagic-portfolio%2Fmain%2Fpublic%2Fimages%2Fog%2Fhome.jpg)
+
+## Deploy with GitHub Pages
+
+This repository includes a GitHub Pages workflow in [.github/workflows/deploy-pages.yml](.github/workflows/deploy-pages.yml).
+
+1. Push your code to `main`.
+2. Open your repository settings in GitHub.
+3. Go to **Pages** → **Build and deployment**.
+4. Set **Source** to **GitHub Actions**.
+
+The workflow will automatically:
+- Build a static export (`out/`)
+- Deploy it to `https://<username>.github.io/<repository>/`
+
+> Note: GitHub Pages is static hosting. API routes under `src/app/api` are excluded during the Pages build.

@@ -1,0 +1,36 @@
+@use "../breakpoints.scss" as breakpoints;
+
+.subjectGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--static-space-16);
+  align-items: stretch;
+}
+
+.activitiesWrap {
+  animation: transitionIn 320ms ease;
+}
+
+@media (max-width: breakpoints.$m) {
+  .subjectGrid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+@media (max-width: breakpoints.$s) {
+  .subjectGrid {
+    grid-template-columns: 1fr;
+    gap: var(--static-space-12);
+  }
+}
+
+@keyframes transitionIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

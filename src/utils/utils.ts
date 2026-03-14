@@ -1,27 +1,81 @@
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 import matter from "gray-matter";
 
-type Team = {
+export type Team = {
   name: string;
   role: string;
   avatar: string;
   linkedIn: string;
 };
 
-type Metadata = {
+type FrontmatterImage =
+  | string
+  | {
+      src?: string;
+      caption?: string;
+      description?: string;
+    };
+
+export type ProjectImage = {
+  src: string;
+  caption?: string;
+};
+
+export type Metadata = {
   title: string;
   subtitle?: string;
   publishedAt: string;
   summary: string;
   image?: string;
-  images: string[];
+  images: ProjectImage[];
   tag?: string;
-  team: Team[];
+  team?: Team[];
   link?: string;
+  category?: string;
 };
 
 import { notFound } from "next/navigation";
+
+function normalizeCaption(value: unknown) {
+  return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
+}
+
+function normalizeProjectImage(image: FrontmatterImage): ProjectImage | null {
+  if (typeof image === "string") {
+    const src = image.trim();
+    return src ? { src } : null;
+  }
+
+  const src = typeof image.src === "string" ? image.src.trim() : "";
+
+  if (!src) {
+    return null;
+  }
+
+  const caption = normalizeCaption(image.caption) ?? normalizeCaption(image.description);
+
+  return caption ? { src, caption } : { src };
+}
+
+export function normalizeProjectImages(images: unknown): ProjectImage[] {
+  if (!Array.isArray(images)) {
+    return [];
+  }
+
+  return images.flatMap((image) => {
+    const normalized = normalizeProjectImage(image as FrontmatterImage);
+    return normalized ? [normalized] : [];
+  });
+}
+
+export function getImageSource(image: ProjectImage) {
+  return image.src;
+}
+
+export function getImageSources(images: ProjectImage[] = []) {
+  return images.map(getImageSource);
+}
 
 function getMDXFiles(dir: string) {
   if (!fs.existsSync(dir)) {
@@ -45,10 +99,11 @@ function readMDXFile(filePath: string) {
     publishedAt: data.publishedAt,
     summary: data.summary || "",
     image: data.image || "",
-    images: data.images || [],
+    images: normalizeProjectImages(data.images),
     tag: data.tag || [],
     team: data.team || [],
     link: data.link || "",
+    category: data.category || "Uncategorized",
   };
 
   return { metadata, content };

@@ -6,20 +6,48 @@ import {
   AvatarGroup,
   Button,
   Column,
-  Flex,
   Heading,
-  Media,
   Text,
   SmartLink,
   Row,
-  Avatar,
-  Line,
 } from "@once-ui-system/core";
 import { baseURL, about, person, work } from "@/resources";
 import { formatDate } from "@/utils/formatDate";
 import { ScrollToHash, CustomMDX } from "@/components";
-import { Metadata } from "next";
-import { Projects } from "@/components/work/Projects";
+import type { Metadata } from "next";
+import { ActivityImageGallery } from "@/components/work/ActivityImageGallery";
+import styles from "./page.module.scss";
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function getDetailBodyContent(content: string, summary?: string) {
+  let normalizedContent = content.trim();
+
+  if (summary?.trim()) {
+    const summaryBlockPattern = new RegExp(
+      `(^|\\n\\s*\\n)${escapeRegExp(summary.trim())}(?=\\n\\s*\\n|$)`,
+      "m",
+    );
+    normalizedContent = normalizedContent.replace(summaryBlockPattern, "").trim();
+  }
+
+  if (!normalizedContent) {
+    return "";
+  }
+
+  const blocks = normalizedContent.split(/\n\s*\n/).filter((block) => block.trim().length > 0);
+  const hasStructuredMarkdown = /^(#{1,6}\s|[-*]\s|\d+\.\s|>\s|\|)|```|!\[|\[.+\]\(.+\)/m.test(
+    normalizedContent,
+  );
+
+  if (blocks.length <= 1 && !hasStructuredMarkdown) {
+    return "";
+  }
+
+  return normalizedContent;
+}
 
 export async function generateStaticParams(): Promise<{ slug: string }[]> {
   const posts = getPosts(["src", "app", "work", "projects"]);
@@ -39,7 +67,7 @@ export async function generateMetadata({
     : routeParams.slug || "";
 
   const posts = getPosts(["src", "app", "work", "projects"]);
-  let post = posts.find((post) => post.slug === slugPath);
+  const post = posts.find((post) => post.slug === slugPath);
 
   if (!post) return {};
 
@@ -62,7 +90,7 @@ export default async function Project({
     ? routeParams.slug.join("/")
     : routeParams.slug || "";
 
-  let post = getPosts(["src", "app", "work", "projects"]).find((post) => post.slug === slugPath);
+  const post = getPosts(["src", "app", "work", "projects"]).find((post) => post.slug === slugPath);
 
   if (!post) {
     notFound();
@@ -72,9 +100,10 @@ export default async function Project({
     post.metadata.team?.map((person) => ({
       src: person.avatar,
     })) || [];
+  const detailBodyContent = getDetailBodyContent(post.content, post.metadata.summary);
 
   return (
-    <Column as="section" maxWidth="m" horizontal="center" gap="l">
+    <Column as="section" maxWidth="m" horizontal="center" gap="l" className={styles.page}>
       <Schema
         as="blogPosting"
         baseURL={baseURL}
@@ -92,21 +121,26 @@ export default async function Project({
           image: `${baseURL}${person.avatar}`,
         }}
       />
+      <Column fillWidth maxWidth="s">
+        <Button href="/work?view=subjects" variant="secondary" size="m" prefixIcon="chevronLeft" label="Subjects" />
+      </Column>
       <Column maxWidth="s" gap="16" horizontal="center" align="center">
-        <SmartLink href="/work">
-          <Text variant="label-strong-m">Projects</Text>
-        </SmartLink>
         <Text variant="body-default-xs" onBackground="neutral-weak" marginBottom="12">
           {post.metadata.publishedAt && formatDate(post.metadata.publishedAt)}
         </Text>
         <Heading variant="display-strong-m">{post.metadata.title}</Heading>
+        {post.metadata.summary && (
+          <Text variant="body-default-m" onBackground="neutral-weak" wrap="pretty" align="center">
+            {post.metadata.summary}
+          </Text>
+        )}
       </Column>
       <Row marginBottom="32" horizontal="center">
         <Row gap="16" vertical="center">
           {post.metadata.team && <AvatarGroup reverse avatars={avatars} size="s" />}
           <Text variant="label-default-m" onBackground="brand-weak">
             {post.metadata.team?.map((member, idx) => (
-              <span key={idx}>
+              <span key={`${member.name}-${member.linkedIn || idx}`}>
                 {idx > 0 && (
                   <Text as="span" onBackground="neutral-weak">
                     ,{" "}
@@ -118,19 +152,12 @@ export default async function Project({
           </Text>
         </Row>
       </Row>
-      {post.metadata.images.length > 0 && (
-        <Media priority aspectRatio="16 / 9" radius="m" alt="image" src={post.metadata.images[0]} />
+      {post.metadata.images.length > 0 && <ActivityImageGallery images={post.metadata.images} title={post.metadata.title} />}
+      {detailBodyContent && (
+        <Column style={{ margin: "auto" }} as="article" maxWidth="xs">
+          <CustomMDX source={detailBodyContent} />
+        </Column>
       )}
-      <Column style={{ margin: "auto" }} as="article" maxWidth="xs">
-        <CustomMDX source={post.content} />
-      </Column>
-      <Column fillWidth gap="40" horizontal="center" marginTop="40">
-        <Line maxWidth="40" />
-        <Heading as="h2" variant="heading-strong-xl" marginBottom="24">
-          Related projects
-        </Heading>
-        <Projects exclude={[post.slug]} range={[2]} />
-      </Column>
       <ScrollToHash />
     </Column>
   );

@@ -1,4 +1,4 @@
-import {
+import type {
   DataStyleConfig,
   DisplayConfig,
   EffectsConfig,
@@ -14,14 +14,12 @@ import {
 import { home } from "./index";
 
 // IMPORTANT: Replace with your own domain address - it's used for SEO in meta tags and schema
-const baseURL: string = "https://demo.magic-portfolio.com";
+const baseURL: string = process.env.NEXT_PUBLIC_SITE_URL || "https://your-domain.com";
 
 const routes: RoutesConfig = {
   "/": true,
   "/about": true,
   "/work": true,
-  "/blog": true,
-  "/gallery": true,
 };
 
 const display: DisplayConfig = {
@@ -35,6 +33,12 @@ const display: DisplayConfig = {
 const protectedRoutes: ProtectedRoutesConfig = {
   "/work/automate-design-handovers-with-a-figma-to-code-pipeline": true,
 };
+
+if (process.env.DEPLOY_TARGET === "github-pages") {
+  for (const path of Object.keys(protectedRoutes)) {
+    protectedRoutes[path as keyof typeof protectedRoutes] = false;
+  }
+}
 
 // Import and set font for each variant
 import { Geist } from "next/font/google";
@@ -187,17 +191,17 @@ const mailchimp: MailchimpConfig = {
 // default schema data
 const schema: SchemaConfig = {
   logo: "",
-  type: "Organization",
-  name: "Once UI",
+  type: "Person",
+  name: "Joshua G. Realino",
   description: home.description,
-  email: "lorant@once-ui.com",
+  email: "your@email.com",
 };
 
 // social links
 const sameAs: SameAsConfig = {
-  threads: "https://www.threads.com/@once_ui",
-  linkedin: "https://www.linkedin.com/company/once-ui/",
-  discord: "https://discord.com/invite/5EyAQ4eNdS",
+  threads: "",
+  linkedin: "",
+  discord: "",
 };
 
 // social sharing configuration for blog posts

@@ -1,0 +1,63 @@
+@use "../breakpoints.scss" as breakpoints;
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--static-space-20);
+}
+
+.card {
+  animation: cardIn 420ms ease both;
+  animation-delay: var(--stagger, 0ms);
+}
+
+.surface {
+  min-height: 100%;
+  transition: transform 260ms ease, border-color 220ms ease, box-shadow 260ms ease;
+  will-change: transform;
+
+  &:hover {
+    transform: translateY(-3px);
+
+    .image {
+      transform: scale(1.02);
+    }
+  }
+}
+
+.mediaWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.image {
+  object-fit: cover;
+  transition: transform 360ms ease;
+}
+
+.summary {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (max-width: breakpoints.$m) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
